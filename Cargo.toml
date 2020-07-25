@@ -1,0 +1,25 @@
+[package]
+name = "flight-tracker"
+version = "0.1.0"
+description = "Track aircraft using ADSB"
+authors = ["António Marques <me@antoniomarques.eu>"]
+license = "MIT/Apache-2.0"
+repository = "https://github.com/asmarques/flight-tracker"
+readme = "README.md"
+edition = "2018"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "flight-tracker"
+path = "src/bin.rs"
+
+[dependencies]
+adsb = "0.2"
+anyhow = { version = "1", optional = true }
+structopt = { version = "0.3", optional = true }
+
+[features]
+default = ["cli"]
+cli = ["anyhow", "structopt"]
