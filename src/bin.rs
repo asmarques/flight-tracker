@@ -11,7 +11,7 @@ use std::time::Duration;
 use structopt::StructOpt;
 
 const REFRESH_INTERVAL: Duration = Duration::from_secs(1);
-const NA: &'static str = "N/A";
+const NA: &str = "N/A";
 
 #[derive(StructOpt)]
 #[structopt(about = "Track aircraft via ADSB")]
@@ -98,7 +98,7 @@ fn write_output(tracker: Arc<Mutex<Tracker>>, expire: Duration) -> JoinHandle<Re
 fn fmt_value<T: fmt::Display>(value: Option<T>, precision: usize) -> String {
     value
         .map(|v| format!("{:.1$}", v, precision))
-        .unwrap_or(NA.to_string())
+        .unwrap_or_else(|| NA.to_string())
 }
 
 fn print_ascii_table(tracker: &Tracker, expire: &Duration) {
@@ -114,7 +114,7 @@ fn print_ascii_table(tracker: &Tracker, expire: &Duration) {
         println!(
             "{:>6} {:>10} {:>8} {:>6} {:>5} {:>8} {:>8},{:>8} {:>5}",
             aircraft.icao_address,
-            aircraft.callsign.clone().unwrap_or(NA.to_string()),
+            aircraft.callsign.clone().unwrap_or_else(|| NA.to_string()),
             fmt_value(aircraft.altitude, 0),
             fmt_value(aircraft.heading, 0),
             fmt_value(aircraft.ground_speed, 0),
