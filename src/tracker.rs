@@ -26,6 +26,8 @@ pub struct Aircraft {
     pub vertical_rate_source: Option<VerticalRateSource>,
     /// Timestamp for last received message
     pub last_seen: SystemTime,
+    /// Last squawk code
+    pub last_squawk: Option<Squawk>,
     last_cpr_even: Option<CPRFrame>,
     last_cpr_odd: Option<CPRFrame>,
 }
@@ -45,6 +47,7 @@ impl Aircraft {
             last_seen: SystemTime::now(),
             last_cpr_even: None,
             last_cpr_odd: None,
+            last_squawk: None,
         }
     }
 
@@ -102,22 +105,25 @@ impl Tracker {
     }
 
     fn update_with_message(&mut self, message: Message) {
-        use ADSBMessageKind::*;
-
-        let (icao_address, kind) = match message {
+        match message {
             Message {
                 kind: ADSBMessage {
                     icao_address, kind, ..
                 },
                 ..
-            } => (icao_address, kind),
-            _ => return,
+            } => self.update_with_adsb_message(icao_address, kind),
+            Message {
+                kind: ModeSMessage { icao_address, kind },
+                ..
+            } => self.update_with_mode_s_message(icao_address, kind),
+            _ => (),
         };
+    }
 
-        let aircraft = self
-            .map
-            .entry(icao_address)
-            .or_insert_with(|| Aircraft::new(icao_address));
+    fn update_with_adsb_message(&mut self, icao_address: ICAOAddress, kind: ADSBMessageKind) {
+        use ADSBMessageKind::*;
+
+        let aircraft = self.get_or_create_aircraft(icao_address);
 
         match kind {
             AircraftIdentification { callsign, .. } => {
@@ -144,6 +150,26 @@ impl Tracker {
         }
 
         aircraft.last_seen = SystemTime::now();
+    }
+
+    fn update_with_mode_s_message(&mut self, icao_address: ICAOAddress, kind: ModeSMessageKind) {
+        use ModeSMessageKind::*;
+
+        let aircraft = self.get_or_create_aircraft(icao_address);
+
+        match kind {
+            SurveillanceIdentity { squawk } => {
+                aircraft.last_squawk = Some(squawk);
+            }
+        }
+
+        aircraft.last_seen = SystemTime::now();
+    }
+
+    fn get_or_create_aircraft(&mut self, icao_address: ICAOAddress) -> &mut Aircraft {
+        self.map
+            .entry(icao_address)
+            .or_insert_with(|| Aircraft::new(icao_address))
     }
 
     /// Get a list of aircraft last seen in the given interval

@@ -106,13 +106,13 @@ fn print_ascii_table(tracker: &Tracker, expire: &Duration) {
     // Clear screen
     print!("\x1B[2J\x1B[H");
     println!(
-        "{:>6} {:>10} {:>8} {:>6} {:>5} {:>8} {:>17} {:>5}",
-        "icao", "call", "alt", "hdg", "gs", "vr", "lat/lon", "last"
+        "{:>6} {:>10} {:>8} {:>6} {:>5} {:>8} {:>17} {:>7} {:>5}",
+        "icao", "call", "alt", "hdg", "gs", "vr", "lat/lon", "squawk", "last"
     );
-    println!("{}", "-".repeat(72));
+    println!("{}", "-".repeat(80));
     for aircraft in aircraft_list {
         println!(
-            "{:>6} {:>10} {:>8} {:>6} {:>5} {:>8} {:>8},{:>8} {:>5}",
+            "{:>6} {:>10} {:>8} {:>6} {:>5} {:>8} {:>8},{:>8} {:>7} {:>5}",
             aircraft.icao_address,
             aircraft.callsign.clone().unwrap_or_else(|| NA.to_string()),
             fmt_value(aircraft.altitude, 0),
@@ -121,6 +121,11 @@ fn print_ascii_table(tracker: &Tracker, expire: &Duration) {
             fmt_value(aircraft.vertical_rate, 0),
             fmt_value(aircraft.latitude, 4),
             fmt_value(aircraft.longitude, 4),
+            aircraft
+                .last_squawk
+                .clone()
+                .map(|s| s.to_string())
+                .unwrap_or_else(|| NA.to_string()),
             aircraft.last_seen.elapsed().unwrap_or_default().as_secs(),
         );
     }
