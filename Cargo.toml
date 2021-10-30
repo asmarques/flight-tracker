@@ -1,6 +1,6 @@
 [package]
 name = "flight-tracker"
-version = "0.1.0"
+version = "0.2.0"
 description = "Track aircraft using ADSB"
 authors = ["António Marques <me@antoniomarques.eu>"]
 license = "MIT/Apache-2.0"
