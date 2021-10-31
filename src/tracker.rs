@@ -63,8 +63,8 @@ impl Aircraft {
         }
         if let (Some(even), Some(odd)) = (&self.last_cpr_even, &self.last_cpr_odd) {
             let position = match last_parity {
-                Parity::Even => cpr::get_position((&odd, &even)),
-                Parity::Odd => cpr::get_position((&even, &odd)),
+                Parity::Even => cpr::get_position((odd, even)),
+                Parity::Odd => cpr::get_position((even, odd)),
             };
             if let Some(Position {
                 latitude,

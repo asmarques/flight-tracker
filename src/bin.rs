@@ -123,7 +123,6 @@ fn print_ascii_table(tracker: &Tracker, expire: &Duration) {
             fmt_value(aircraft.longitude, 4),
             aircraft
                 .last_squawk
-                .clone()
                 .map(|s| s.to_string())
                 .unwrap_or_else(|| NA.to_string()),
             aircraft.last_seen.elapsed().unwrap_or_default().as_secs(),
