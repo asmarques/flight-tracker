@@ -14,7 +14,7 @@ const REFRESH_INTERVAL: Duration = Duration::from_secs(1);
 const NA: &str = "N/A";
 
 #[derive(Parser, Debug)]
-#[command(about = "Track aircraft via ADSB.")]
+#[command(about = "ADSB flight tracker")]
 struct Cli {
     #[command(subcommand)]
     cmd: Command,
