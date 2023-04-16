@@ -28,7 +28,7 @@ The received ADSB messages will be used to update a table of current aircraft po
 If you want to integrate the tracker into your application, create a new instance:
 
 ```rust
-let tracker = Tracker::new()
+let tracker = Tracker::new();
 ```
 
 Continuously feed it with ADSB messages from a receiver:
