@@ -1,4 +1,5 @@
 use anyhow::Result;
+use clap::{Parser, Subcommand};
 use flight_tracker::Tracker;
 use std::fmt;
 use std::io;
@@ -8,41 +9,35 @@ use std::net::TcpStream;
 use std::sync::{Arc, Mutex};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
-use structopt::StructOpt;
 
 const REFRESH_INTERVAL: Duration = Duration::from_secs(1);
 const NA: &str = "N/A";
 
-#[derive(StructOpt)]
-#[structopt(about = "Track aircraft via ADSB")]
+#[derive(Parser, Debug)]
+#[command(about = "Track aircraft via ADSB.")]
 struct Cli {
-    #[structopt(subcommand)]
+    #[command(subcommand)]
     cmd: Command,
-    #[structopt(
-        name = "expire",
-        help = "Number of seconds before removing stale entries",
-        default_value = "60",
-        short = "e",
-        long = "expire"
-    )]
+    /// Number of seconds before removing stale entries
+    #[arg(name = "expire", default_value = "60", short, long = "expire")]
     expire: u64,
 }
 
-#[derive(StructOpt)]
+#[derive(Debug, Subcommand)]
 enum Command {
-    #[structopt(about = "Read messages from stdin")]
+    /// Read messages from stdin
     Stdin,
-    #[structopt(about = "Read messages from a TCP server")]
+    /// Read messages from a TCP server
     Tcp {
-        #[structopt(help = "host")]
+        #[arg(help = "host")]
         host: String,
-        #[structopt(help = "port", default_value = "30002")]
+        #[arg(help = "port", default_value = "30002")]
         port: u16,
     },
 }
 
 fn main() -> Result<()> {
-    let args = Cli::from_args();
+    let args = Cli::parse();
     let tracker = Arc::new(Mutex::new(Tracker::new()));
     let expire = Duration::from_secs(args.expire);
     let writer = write_output(tracker.clone(), expire);
